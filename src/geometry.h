@@ -24,6 +24,9 @@ public:
     void* tangentData();
     void* bitangentData();
 
+    void rotateObject();
+    void scaleObject();
+
 private:
     std::vector<float> vertices;
     std::vector<float> textureCoords;

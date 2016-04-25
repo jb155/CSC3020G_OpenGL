@@ -3,11 +3,22 @@
 
 #include "SDL.h"
 #include <GL/glew.h>
+#include <GL/glut.h>
 
 #include "glwindow.h"
 #include "geometry.h"
 
 using namespace std;
+GeometryData geometry;
+
+enum WindowState
+{
+    VIEW,
+    ROTATE,
+    SCALE
+};
+WindowState currentWindowType;
+int colorLoc;
 
 const char* glGetErrorString(GLenum error)
 {
@@ -149,19 +160,20 @@ void OpenGLWindow::initGL()
     shader = loadShaderProgram("simple.vert", "simple.frag");
     glUseProgram(shader);
 
-    int colorLoc = glGetUniformLocation(shader, "objectColor");
-    glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+    colorLoc = glGetUniformLocation(shader, "objectColor");
+    glUniform3f(colorLoc, 100.0f, 100.0f, 100.0f);
 
     // Load the model that we want to use and buffer the vertex attributes
-    //GeometryData geometry = loadOBJFile("tri.obj");
+    geometry.loadFromOBJFile("sample-bunny.obj");
 
     int vertexLoc = glGetAttribLocation(shader, "position");
-    float vertices[9] = { 0.0f,  0.5f, 0.0f,
-                         -0.5f, -0.5f, 0.0f,
-                          0.5f, -0.5f, 0.0f };
+
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), vertices, GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), vertices, GL_STATIC_DRAW);
+
+
+    glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
@@ -172,7 +184,27 @@ void OpenGLWindow::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
+
+    //std::cout<<currentWindowType<<std::endl;
+    switch (currentWindowType) {
+      case 0:
+      {
+        //std::cout<<"View"<<std::endl;
+        break;
+      }
+      case 1:
+      {
+        //std::cout<<"Rotate"<<std::endl;
+        break;
+      }
+      case 2:
+      {
+        //std::cout<<"Scale"<<std::endl;
+        break;
+      }
+    }
+
 
     // Swap the front and back buffers on the window, effectively putting what we just "drew"
     // onto the screen (whereas previously it only existed in memory)
@@ -190,6 +222,44 @@ bool OpenGLWindow::handleEvent(SDL_Event e)
         if(e.key.keysym.sym == SDLK_ESCAPE)
         {
             return false;
+        }
+
+        if(e.key.keysym.sym == SDLK_r){         //step through rotation axis none, x, y, z, wrap around
+          if(currentWindowType == ROTATE){
+            currentWindowType = VIEW;
+          }else{
+            currentWindowType = ROTATE;
+          }
+        }
+
+        if(e.key.keysym.sym == SDLK_s){
+          if(currentWindowType == SCALE){
+            currentWindowType = VIEW;
+          }else{
+            currentWindowType = SCALE;
+          }
+        }
+
+        //colour
+        if(e.key.keysym.sym == SDLK_1){
+          colorLoc = glGetUniformLocation(shader, "objectColor");
+          glUniform3f(colorLoc, 100.0f, 0.0f, 0.0f);
+        }
+        if(e.key.keysym.sym == SDLK_2){
+          colorLoc = glGetUniformLocation(shader, "objectColor");
+          glUniform3f(colorLoc, 0.0f, 100.0f, 0.0f);
+        }
+        if(e.key.keysym.sym == SDLK_3){
+          colorLoc = glGetUniformLocation(shader, "objectColor");
+          glUniform3f(colorLoc, 0.0f, 0.0f, 100.0f);
+        }
+        if(e.key.keysym.sym == SDLK_4){
+          colorLoc = glGetUniformLocation(shader, "objectColor");
+          glUniform3f(colorLoc, 100.0f, 100.0f, 0.0f);
+        }
+        if(e.key.keysym.sym == SDLK_5){
+          colorLoc = glGetUniformLocation(shader, "objectColor");
+          glUniform3f(colorLoc, 100.0f, 100.0f, 100.0f);
         }
     }
     return true;

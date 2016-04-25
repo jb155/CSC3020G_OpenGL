@@ -5,8 +5,9 @@
 #include <math.h>
 
 using namespace std;
-
+float radians;
 #include "geometry.h"
+#include "SDL.h"
 
 // NOTE: The WaveFront OBJ format spec, states that meshes are allowed to be defined by faces
 //       consisting of 3 or more vertices. For the purposes of this loader (and since this is the
@@ -163,7 +164,7 @@ void GeometryData::loadFromOBJFile(string filename)
                         inStream.unget(); // This is just to prevent us from consuming a newline
                     }
                 }
-                
+
                 // NOTE: We subtract 1 here because the OBJ format uses 1-based indices
                 face.vertexIndex[index] = vertIndex - 1;
                 face.texCoordIndex[index] = texCoordIndex - 1;
@@ -313,4 +314,28 @@ void* GeometryData::tangentData()
 void* GeometryData::bitangentData()
 {
     return (void*)&bitangents[0];
+}
+
+void GeometryData::rotateObject()
+{
+  int x, y;
+  SDL_GetMouseState(&x, &y);
+
+  x = (x - (int)(640/2));  //get distance from centre of screen
+  y = (y - (int)(480/2));
+
+  /*radians =  float(PI*(angle-90.0f)/180.0f);
+
+  glTranslatef(1,2,3);
+  glScalef(10,10,10);
+  glRotatef(45,1,0,0);*/
+
+  //reset cursor to center of screen
+  //SDL_WarpMouse((int)(640/2),(int)(480/2));
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+}
+
+void GeometryData::scaleObject()
+{
+
 }

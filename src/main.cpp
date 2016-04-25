@@ -37,6 +37,8 @@ int SDL_main(int argc, char** argv)
                 running = false;
             }
         }
+
+        //render
         window.render();
 
         // We sleep for 10ms here so as to prevent excessive CPU usage
@@ -47,4 +49,3 @@ int SDL_main(int argc, char** argv)
     SDL_Quit();
     return 0;
 }
-
