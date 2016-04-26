@@ -35,6 +35,10 @@ private:
     std::vector<float> bitangents;
 
     std::vector<FaceData> faces;
+
+    glm::mat4 GetWorldMatrix(char axis, float degrees);
+    void applyModifications(glm::mat4 x, glm::mat4 y);
+    void rotateObject();
 };
 
 #endif

@@ -18,7 +18,7 @@ int SDL_main(int argc, char** argv)
         return 1;
     }
 
-    OpenGLWindow window;
+    OpenGLWindow window; 
     window.initGL();
 
     bool running = true;

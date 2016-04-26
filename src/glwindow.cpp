@@ -173,7 +173,7 @@ void OpenGLWindow::initGL()
     //glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), vertices, GL_STATIC_DRAW);
 
 
-    glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()) * 3, geometry.vertexData(), GL_STATIC_DRAW);
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
 
@@ -195,7 +195,8 @@ void OpenGLWindow::render()
       }
       case 1:
       {
-        //std::cout<<"Rotate"<<std::endl;
+        geometry.rotateObject();
+        glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
         break;
       }
       case 2:

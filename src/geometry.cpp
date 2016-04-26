@@ -4,6 +4,9 @@
 
 #include <math.h>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 using namespace std;
 float radians;
 #include "geometry.h"
@@ -316,23 +319,56 @@ void* GeometryData::bitangentData()
     return (void*)&bitangents[0];
 }
 
+glm::mat4 GeometryData::GetWorldMatrix(char axis, float degrees) {
+  glm::mat4 worldMatrix( 1.0f );
+  //worldMatrix = glm::translate( worldMatrix,  );
+  switch (axis) {
+    case 'x':
+    {
+      worldMatrix = glm::rotate (worldMatrix, degrees, glm::vec3( 1.0f, 0.0f, 0.0f ));
+      break;
+    }
+    case 'y':
+    {
+      worldMatrix =  glm::rotate (worldMatrix, degrees, glm::vec3( 0.0f, 1.0f, 0.0f ));
+      break;
+    }
+  }
+
+//worldMatrix = glm::translate( worldMatrix, -position );
+  return worldMatrix;
+}
+
+void GeometryData::applyModifications(glm::mat4 x, glm::mat4 y){
+  glm::mat4 vertexMat4 =  glm::make_mat4(vertices);
+
+  vertexMat4 = vertexMat4*x;
+  vertexMat4 = vertexMat4*y;
+
+  glm::mat4 textCoordMat4 =  glm::make_mat4(texCoordIndex);
+
+  textCoordMat4 = textCoordMat4*x;
+  textCoordMat4 = textCoordMat4*y;
+
+  glm::mat4 normalMat4 = glm::make_mat4(normalIndex);
+
+  normalMat4 = normalMat4*x;
+  normalMat4 = normalMat4*y;
+}
+
 void GeometryData::rotateObject()
 {
-  int x, y;
-  SDL_GetMouseState(&x, &y);
+  // Get mouse position
+  int xpos, ypos;
+  SDL_GetMouseState(&xpos, &ypos);
+  xpos -= 640/2;
+  ypos -= 480/2;
 
-  x = (x - (int)(640/2));  //get distance from centre of screen
-  y = (y - (int)(480/2));
+  std::cout << "xPos: " + std::to_string(xpos) + "  yPos: " + std::to_string(ypos) <<std::endl;
 
-  /*radians =  float(PI*(angle-90.0f)/180.0f);
+  //SDL_WarpMouse(640/2, 480/2);
 
-  glTranslatef(1,2,3);
-  glScalef(10,10,10);
-  glRotatef(45,1,0,0);*/
-
-  //reset cursor to center of screen
-  //SDL_WarpMouse((int)(640/2),(int)(480/2));
-  SDL_SetRelativeMouseMode(SDL_TRUE);
+  applyModifications(GetWorldMatrix('x',xpos), GetWorldMatrix('y',ypos))
 }
 
 void GeometryData::scaleObject()
