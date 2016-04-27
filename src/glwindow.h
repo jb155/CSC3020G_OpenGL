@@ -21,6 +21,19 @@ private:
     GLuint vao;
     GLuint shader;
     GLuint vertexBuffer;
+
+    glm::mat4 identMat4 = glm::mat4(1.0f);
+    glm::mat4 modelMat4;
+
+    glm::mat4 rotateMat4;
+    glm::mat4 scaleMat4;
+    glm::mat4 finalMat4;
+
+    int vertexLoc,matrixLoc;
+
+    float rotationAngle[]{
+        0,0,0
+    };
 };
 
 #endif

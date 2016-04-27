@@ -1,16 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <glm/glm.hpp>
 #include <math.h>
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 float radians;
 #include "geometry.h"
 #include "SDL.h"
+//#include "glm/glm.hpp"
 
 // NOTE: The WaveFront OBJ format spec, states that meshes are allowed to be defined by faces
 //       consisting of 3 or more vertices. For the purposes of this loader (and since this is the
@@ -319,7 +317,7 @@ void* GeometryData::bitangentData()
     return (void*)&bitangents[0];
 }
 
-glm::mat4 GeometryData::GetWorldMatrix(char axis, float degrees) {
+/*glm::mat4 GeometryData::GetWorldMatrix(char axis, float degrees) {
   glm::mat4 worldMatrix( 1.0f );
   //worldMatrix = glm::translate( worldMatrix,  );
   switch (axis) {
@@ -335,28 +333,28 @@ glm::mat4 GeometryData::GetWorldMatrix(char axis, float degrees) {
     }
   }
 
-//worldMatrix = glm::translate( worldMatrix, -position );
+worldMatrix = glm::translate( worldMatrix, -position );
   return worldMatrix;
-}
+}*
 
 void GeometryData::applyModifications(glm::mat4 x, glm::mat4 y){
-  glm::mat4 vertexMat4 =  glm::make_mat4(vertices);
+  glm::vec3 vertexVec3 = glm::vec3(vertices[0],vertices[1],vertices[2]);
 
-  vertexMat4 = vertexMat4*x;
-  vertexMat4 = vertexMat4*y;
+  vertexVec3 = x * vertexVec3;
+  vertexVec3 = y * vertexVec3;
 
-  glm::mat4 textCoordMat4 =  glm::make_mat4(texCoordIndex);
+  glm::vec3 textCoordVat4 =  glm::vec3(texCoordIndex[0],texCoordIndex[1],texCoordIndex[2]);
 
-  textCoordMat4 = textCoordMat4*x;
-  textCoordMat4 = textCoordMat4*y;
+  textCoordVec3 = x * textCoordVec3;
+  textCoordVec3 = y * textCoordVec3;
 
-  glm::mat4 normalMat4 = glm::make_mat4(normalIndex);
+  glm::vec3 normalVec3 = glm::vec3(normalIndex[0],normalIndex[1],normalIndex[2]);
 
-  normalMat4 = normalMat4*x;
-  normalMat4 = normalMat4*y;
-}
+  normalVec3 = y * normalVec3;
+  normalVec3 = y * normalVec3;
+}*/
 
-void GeometryData::rotateObject()
+void rotateObject()
 {
   // Get mouse position
   int xpos, ypos;
@@ -368,7 +366,7 @@ void GeometryData::rotateObject()
 
   //SDL_WarpMouse(640/2, 480/2);
 
-  applyModifications(GetWorldMatrix('x',xpos), GetWorldMatrix('y',ypos))
+  //applyModifications(GetWorldMatrix('x',xpos), GetWorldMatrix('y',ypos));
 }
 
 void GeometryData::scaleObject()

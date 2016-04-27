@@ -7,6 +7,8 @@
 
 #include "glwindow.h"
 #include "geometry.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
 GeometryData geometry;
@@ -166,16 +168,28 @@ void OpenGLWindow::initGL()
     // Load the model that we want to use and buffer the vertex attributes
     geometry.loadFromOBJFile("sample-bunny.obj");
 
-    int vertexLoc = glGetAttribLocation(shader, "position");
+    vertexLoc = glGetAttribLocation(shader, "position");
+
+    matrixLoc = glGetUniformLocation(shader, "mat4Loc");
+
+
+    //model = glm::perspective()
+    //model = glm::
+
+    modelMat4 = glm::rotate(modelMat4, 45.0f, glm::vec3(0.0f,0.0f,1.0f));
+    modelMat4 = glm::scale(modelMat4, glm::vec3(0.5f,0.5f,0.5f));
+    finalMat4 = modelMat4 * identMat4;
+
+    glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, &finalMat4[0][0]);
 
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     //glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), vertices, GL_STATIC_DRAW);
 
-
     glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()) * 3, geometry.vertexData(), GL_STATIC_DRAW);
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
+    glEnableVertexAttribArray(matrixLoc);
 
     glPrintError("Setup complete", true);
 }
@@ -183,8 +197,7 @@ void OpenGLWindow::initGL()
 void OpenGLWindow::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
+    glEnable(GL_MULTISAMPLE_ARB);
 
     //std::cout<<currentWindowType<<std::endl;
     switch (currentWindowType) {
@@ -195,8 +208,9 @@ void OpenGLWindow::render()
       }
       case 1:
       {
-        geometry.rotateObject();
-        glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
+        std::cout <<"rortate that bitch"<<std::endl;
+        //geometry.rotateObject();
+        //glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
         break;
       }
       case 2:
@@ -205,7 +219,7 @@ void OpenGLWindow::render()
         break;
       }
     }
-
+      glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
 
     // Swap the front and back buffers on the window, effectively putting what we just "drew"
     // onto the screen (whereas previously it only existed in memory)

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "glm/glm.hpp"
 
 struct FaceData
 {
@@ -27,6 +28,9 @@ public:
     void rotateObject();
     void scaleObject();
 
+    //glm::mat4 GetWorldMatrix(char axis, float degrees);
+    //void applyModifications(glm::mat4 x, glm::mat4 y);
+
 private:
     std::vector<float> vertices;
     std::vector<float> textureCoords;
@@ -35,10 +39,6 @@ private:
     std::vector<float> bitangents;
 
     std::vector<FaceData> faces;
-
-    glm::mat4 GetWorldMatrix(char axis, float degrees);
-    void applyModifications(glm::mat4 x, glm::mat4 y);
-    void rotateObject();
 };
 
 #endif
