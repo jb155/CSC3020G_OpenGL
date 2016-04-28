@@ -25,8 +25,8 @@ public:
     void* tangentData();
     void* bitangentData();
 
-    void rotateObject();
-    void scaleObject();
+    std::vector<float> getMouseLoc();
+    //void* scaleObject();
 
     //glm::mat4 GetWorldMatrix(char axis, float degrees);
     //void applyModifications(glm::mat4 x, glm::mat4 y);

@@ -354,7 +354,7 @@ void GeometryData::applyModifications(glm::mat4 x, glm::mat4 y){
   normalVec3 = y * normalVec3;
 }*/
 
-void rotateObject()
+std::vector<float> GeometryData::getMouseLoc()
 {
   // Get mouse position
   int xpos, ypos;
@@ -364,12 +364,17 @@ void rotateObject()
 
   std::cout << "xPos: " + std::to_string(xpos) + "  yPos: " + std::to_string(ypos) <<std::endl;
 
-  //SDL_WarpMouse(640/2, 480/2);
+  std::vector<float> results{
+    (-0.01f/(float) xpos),(-0.01f*(float) ypos),0.0f
+  };
 
-  //applyModifications(GetWorldMatrix('x',xpos), GetWorldMatrix('y',ypos));
+  std::cout << "" + to_string(xpos) + " " + to_string(ypos) << std::endl;
+
+  return results;
 }
 
-void GeometryData::scaleObject()
+/*void * scaleObject()
 {
-
-}
+  int i;
+  return i;
+}*/

@@ -31,9 +31,11 @@ private:
 
     int vertexLoc,matrixLoc;
 
-    float rotationAngle[]{
-        0,0,0
-    };
+    int windowWidth = 640;
+    int windowHeight = 480;
+
+    int rotateAxis = 0;           //0 none, 1 x, 2 y, 3 z
+    int translateAxis = 0;        //0 none, 1 x, 2 y, 3 z
 };
 
 #endif

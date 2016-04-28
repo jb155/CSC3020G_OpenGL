@@ -9,6 +9,7 @@
 #include "geometry.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <math.h>
 
 using namespace std;
 GeometryData geometry;
@@ -17,10 +18,17 @@ enum WindowState
 {
     VIEW,
     ROTATE,
-    SCALE
+    SCALE,
+    TRANSLATE
 };
 WindowState currentWindowType;
 int colorLoc;
+float objScale = 1.0f;
+float objectPos[] {
+  0.0f,
+  0.0f,
+  0.0f
+};
 
 const char* glGetErrorString(GLenum error)
 {
@@ -117,6 +125,10 @@ void OpenGLWindow::initGL()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);           //Anti-aliasing
+    /* Enable Z depth testing so objects closest to the viewpoint are in front of objects further away */
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     sdlWin = SDL_CreateWindow("OpenGL Prac 1",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -172,12 +184,10 @@ void OpenGLWindow::initGL()
 
     matrixLoc = glGetUniformLocation(shader, "mat4Loc");
 
-
     //model = glm::perspective()
     //model = glm::
 
-    modelMat4 = glm::rotate(modelMat4, 45.0f, glm::vec3(0.0f,0.0f,1.0f));
-    modelMat4 = glm::scale(modelMat4, glm::vec3(0.5f,0.5f,0.5f));
+    modelMat4 = glm::scale(identMat4, glm::vec3(2.0f,2.0f,2.0f));
     finalMat4 = modelMat4 * identMat4;
 
     glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, &finalMat4[0][0]);
@@ -185,7 +195,6 @@ void OpenGLWindow::initGL()
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     //glBufferData(GL_ARRAY_BUFFER, 9*sizeof(float), vertices, GL_STATIC_DRAW);
-
     glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()) * 3, geometry.vertexData(), GL_STATIC_DRAW);
     glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(vertexLoc);
@@ -199,7 +208,9 @@ void OpenGLWindow::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_MULTISAMPLE_ARB);
 
-    //std::cout<<currentWindowType<<std::endl;
+
+
+    std::cout<<currentWindowType<<std::endl;
     switch (currentWindowType) {
       case 0:
       {
@@ -208,19 +219,111 @@ void OpenGLWindow::render()
       }
       case 1:
       {
-        std::cout <<"rortate that bitch"<<std::endl;
-        //geometry.rotateObject();
-        //glBufferData(GL_ARRAY_BUFFER, geometry.vertexCount() * sizeof(geometry.textureCoordData()), geometry.vertexData(), GL_STATIC_DRAW);
+        std::vector<float> v = geometry.getMouseLoc();
+
+        int direct = 0;
+        if(v[0]<0||v[1]<0){
+          direct = -1;
+        }else if (v[0]>0||v[1]>0){
+          direct = 1;
+        }
+
+
+        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/50.0f;
+
+        if(v[0]!=0&&v[1]!=0){   //if mouse is center of screen...dont do anything
+          switch (rotateAxis) {
+            case 1:                   //x
+            {
+              modelMat4 = glm::rotate(modelMat4, dist, glm::vec3(1.0f,0.0f,0.0f)); //rotate on mouse x
+              break;
+            }
+            case 2:                   //y
+            {
+              modelMat4 = glm::rotate(modelMat4, dist, glm::vec3(0.0f,1.0f,0.0f)); //rotate on mouse y
+              break;
+            }
+            case 3:                   //z
+            {
+              modelMat4 = glm::rotate(modelMat4, dist, glm::vec3(0.0f,0.0f,1.0f)); //rotate on mouse z
+              break;
+            }
+          }
+        }
         break;
       }
-      case 2:
+      case 2://Scale
       {
-        //std::cout<<"Scale"<<std::endl;
+        std::vector<float> v = geometry.getMouseLoc();
+
+
+        float dist = ()(std::sqrt(std::abs(v[0]*v[0]) + std::abs(v[1]*v[1])))/2 + 0.5f)/50.0f;
+        std::cout<<dist<<std::endl;
+        std::cout<<objScale<<std::endl;
+        if(((objScale>0.25f)&&(dist<1))||((objScale<2.0f)&&(dist>1))){  //clamps scale when shrinking
+          modelMat4 = glm::scale(modelMat4, glm::vec3(dist,dist,dist));
+          objScale = objScale*dist;
+        }
+        break;
+      }
+      case 3:
+      {
+        std::vector<float> v = geometry.getMouseLoc();
+
+        int direct = 0;
+        if(v[0]<0||v[1]<0){
+          direct = -1;
+        }else if (v[0]>0||v[1]>0){
+          direct = 1;
+        }
+
+
+        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/75.0f;
+
+        std::cout<<dist<<std::endl;
+
+        if(v[0]!=0&&v[1]!=0){   //if mouse is center of screen...dont do anything
+          switch (translateAxis) {
+            case 1:                   //x
+            {
+              if(std::abs(objectPos[0] + dist) < (windowWidth/2)){
+                std::cout << "x" << std::endl;
+                glm::vec3 direction = glm::vec3 (1.0f,0.0f,0.0f) * dist * -0.25f;
+                modelMat4 = glm::translate(modelMat4, direction);
+                objectPos[0] += dist * 0.25f;
+                break;
+              }
+            }
+            case 2:                   //y
+            {
+              std::cout << "y" << std::endl;
+              if(std::abs(objectPos[0] + dist) < (windowHeight/2)){
+                glm::vec3 direction = glm::vec3 (0.0f,1.0f,0.0f) * dist * 0.25f;
+                modelMat4 = glm::translate(modelMat4, direction);
+                objectPos[1] += dist * 0.25f;
+              }
+              break;
+            }
+            case 3:                   //z
+            {
+
+              std::cout << "z" << std::endl;
+              glm::vec3 direction = glm::vec3 (0.0f,0.0f,1.0f) * dist * 0.25f;
+              modelMat4 = glm::translate(modelMat4, direction);
+              objectPos[2] += dist * 0.25f;
+              break;
+            }
+          }
+        }
         break;
       }
     }
-      glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
 
+    finalMat4 = modelMat4 * identMat4;
+    glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, &finalMat4[0][0]);
+    glEnableVertexAttribArray(vertexLoc);
+    glEnableVertexAttribArray(matrixLoc);
+    glDrawArrays(GL_TRIANGLES, 0, geometry.vertexCount());
     // Swap the front and back buffers on the window, effectively putting what we just "drew"
     // onto the screen (whereas previously it only existed in memory)
     SDL_GL_SwapWindow(sdlWin);
@@ -234,26 +337,44 @@ bool OpenGLWindow::handleEvent(SDL_Event e)
     // and Keycodes (which correspond to symbols on the keyboard, and might differ across layouts)
     if(e.type == SDL_KEYDOWN)
     {
+      //Escape
         if(e.key.keysym.sym == SDLK_ESCAPE)
         {
             return false;
         }
-
+        //Rotate
         if(e.key.keysym.sym == SDLK_r){         //step through rotation axis none, x, y, z, wrap around
-          if(currentWindowType == ROTATE){
-            currentWindowType = VIEW;
-          }else{
+          translateAxis = 0;
+          if(rotateAxis < 3){
             currentWindowType = ROTATE;
+            rotateAxis++;
+          }else{
+            currentWindowType = VIEW;
+            rotateAxis = 0;
           }
         }
-
+        //Scale
         if(e.key.keysym.sym == SDLK_s){
+          translateAxis = 0;
+          rotateAxis = 0;
           if(currentWindowType == SCALE){
             currentWindowType = VIEW;
           }else{
             currentWindowType = SCALE;
           }
         }
+        //Translate
+        if(e.key.keysym.sym == SDLK_t){         //step through translate axis none, x, y, z, wrap around
+          rotateAxis = 0;
+          if(rotateAxis < 3){
+            currentWindowType = TRANSLATE;
+            translateAxis++;
+          }else{
+            currentWindowType = VIEW;
+            translateAxis = 0;
+          }
+        }
+
 
         //colour
         if(e.key.keysym.sym == SDLK_1){
