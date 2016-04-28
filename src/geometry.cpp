@@ -317,44 +317,7 @@ void* GeometryData::bitangentData()
     return (void*)&bitangents[0];
 }
 
-/*glm::mat4 GeometryData::GetWorldMatrix(char axis, float degrees) {
-  glm::mat4 worldMatrix( 1.0f );
-  //worldMatrix = glm::translate( worldMatrix,  );
-  switch (axis) {
-    case 'x':
-    {
-      worldMatrix = glm::rotate (worldMatrix, degrees, glm::vec3( 1.0f, 0.0f, 0.0f ));
-      break;
-    }
-    case 'y':
-    {
-      worldMatrix =  glm::rotate (worldMatrix, degrees, glm::vec3( 0.0f, 1.0f, 0.0f ));
-      break;
-    }
-  }
-
-worldMatrix = glm::translate( worldMatrix, -position );
-  return worldMatrix;
-}*
-
-void GeometryData::applyModifications(glm::mat4 x, glm::mat4 y){
-  glm::vec3 vertexVec3 = glm::vec3(vertices[0],vertices[1],vertices[2]);
-
-  vertexVec3 = x * vertexVec3;
-  vertexVec3 = y * vertexVec3;
-
-  glm::vec3 textCoordVat4 =  glm::vec3(texCoordIndex[0],texCoordIndex[1],texCoordIndex[2]);
-
-  textCoordVec3 = x * textCoordVec3;
-  textCoordVec3 = y * textCoordVec3;
-
-  glm::vec3 normalVec3 = glm::vec3(normalIndex[0],normalIndex[1],normalIndex[2]);
-
-  normalVec3 = y * normalVec3;
-  normalVec3 = y * normalVec3;
-}*/
-
-std::vector<float> GeometryData::getMouseLoc()
+std::vector<float> GeometryData::getMouseLoc()  
 {
   // Get mouse position
   int xpos, ypos;
@@ -372,9 +335,3 @@ std::vector<float> GeometryData::getMouseLoc()
 
   return results;
 }
-
-/*void * scaleObject()
-{
-  int i;
-  return i;
-}*/

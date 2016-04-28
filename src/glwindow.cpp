@@ -208,9 +208,7 @@ void OpenGLWindow::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_MULTISAMPLE_ARB);
 
-
-
-    std::cout<<currentWindowType<<std::endl;
+    //std::cout<<currentWindowType<<std::endl;
     switch (currentWindowType) {
       case 0:
       {
@@ -219,7 +217,7 @@ void OpenGLWindow::render()
       }
       case 1:
       {
-        std::vector<float> v = geometry.getMouseLoc();
+        std::vector<float> v = geometry.getMouseLoc();  //get mouse loc
 
         int direct = 0;
         if(v[0]<0||v[1]<0){
@@ -229,7 +227,7 @@ void OpenGLWindow::render()
         }
 
 
-        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/50.0f;
+        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/50.0f; //Calc dist of center of screen to mouse cusor
 
         if(v[0]!=0&&v[1]!=0){   //if mouse is center of screen...dont do anything
           switch (rotateAxis) {
@@ -254,21 +252,21 @@ void OpenGLWindow::render()
       }
       case 2://Scale
       {
-        std::vector<float> v = geometry.getMouseLoc();
+        std::vector<float> v = geometry.getMouseLoc();  //get mouse loc
 
 
-        float dist = ()(std::sqrt(std::abs(v[0]*v[0]) + std::abs(v[1]*v[1])))/2 + 0.5f)/50.0f;
-        std::cout<<dist<<std::endl;
-        std::cout<<objScale<<std::endl;
-        if(((objScale>0.25f)&&(dist<1))||((objScale<2.0f)&&(dist>1))){  //clamps scale when shrinking
+        float dist = ((std::sqrt(std::abs(v[0]*v[0]) + std::abs(v[1]*v[1])))/2 + 0.75f);  //Calc dist of center of screen to mouse cusor
+        //std::cout<<dist<<std::endl;
+        //std::cout<<objScale<<std::endl;
+        if(((objScale*dist>0.25f)&&(dist<1))||((objScale*dist<2.0f)&&(dist>1))){  //clamps scale when shrinking
           modelMat4 = glm::scale(modelMat4, glm::vec3(dist,dist,dist));
-          objScale = objScale*dist;
+          objScale = objScale*dist; //keep track of scaling
         }
         break;
       }
       case 3:
       {
-        std::vector<float> v = geometry.getMouseLoc();
+        std::vector<float> v = geometry.getMouseLoc();//get mouse loc
 
         int direct = 0;
         if(v[0]<0||v[1]<0){
@@ -278,39 +276,35 @@ void OpenGLWindow::render()
         }
 
 
-        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/75.0f;
+        float dist = (std::sqrt(v[0]*v[0] + v[1]*v[1])*direct +0.5f)/75.0f; //Calc dist of center of screen to mouse cusor
 
-        std::cout<<dist<<std::endl;
+        //std::cout<<objectPos[0]<<std::endl;
+        //std::cout<<"translateAxis "<<translateAxis<<std::endl;
 
         if(v[0]!=0&&v[1]!=0){   //if mouse is center of screen...dont do anything
           switch (translateAxis) {
             case 1:                   //x
             {
-              if(std::abs(objectPos[0] + dist) < (windowWidth/2)){
-                std::cout << "x" << std::endl;
-                glm::vec3 direction = glm::vec3 (1.0f,0.0f,0.0f) * dist * -0.25f;
-                modelMat4 = glm::translate(modelMat4, direction);
-                objectPos[0] += dist * 0.25f;
-                break;
-              }
+              std::cout << "x" << std::endl;
+              glm::vec3 direction = glm::vec3 (1.0f,0.0f,0.0f) * dist * -0.25f;
+              modelMat4 = glm::translate(modelMat4, direction); //translate model
+              objectPos[0] = objectPos[0] + (dist * -0.25f);  //keep track of translate
+              break;
             }
             case 2:                   //y
             {
               std::cout << "y" << std::endl;
-              if(std::abs(objectPos[0] + dist) < (windowHeight/2)){
-                glm::vec3 direction = glm::vec3 (0.0f,1.0f,0.0f) * dist * 0.25f;
-                modelMat4 = glm::translate(modelMat4, direction);
-                objectPos[1] += dist * 0.25f;
-              }
+              glm::vec3 direction = glm::vec3 (0.0f,1.0f,0.0f) * dist * 0.25f;
+              modelMat4 = glm::translate(modelMat4, direction); //translate model
+              objectPos[1] += dist * 0.25f; //keep track of translate
               break;
             }
             case 3:                   //z
             {
-
               std::cout << "z" << std::endl;
               glm::vec3 direction = glm::vec3 (0.0f,0.0f,1.0f) * dist * 0.25f;
-              modelMat4 = glm::translate(modelMat4, direction);
-              objectPos[2] += dist * 0.25f;
+              modelMat4 = glm::translate(modelMat4, direction); //translate model
+              objectPos[2] += dist * 0.25f; //keep track of translate
               break;
             }
           }
